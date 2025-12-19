@@ -1,13 +1,13 @@
 name: 🔁 리팩터 (refactor)
-about: 코드 구조 변경/리팩터링 관련 작업
+description: 코드 구조 개선 및 리팩터링 이슈
 title: "[refactor] "
 labels: ["refactor"]
 body:
   - type: textarea
-    id: description
+    id: refactor_details
     attributes:
-      label: 리팩터 내용
-      description: 어떤 코드를 어떻게 개선했는지 작성해주세요.
-      placeholder: "리팩토링 목적/이유 및 변경 범위"
+      label: 리팩터링 내용
+      description: 어떤 부분을 개선했나요?
+      placeholder: 리팩터링 상세 설명
     validations:
       required: true

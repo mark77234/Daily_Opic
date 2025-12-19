@@ -1,13 +1,13 @@
-name: 🧪 테스트 관련 (test)
-about: 테스트 코드 작성/수정 관련 이슈
+name: 🧪 테스트 (test)
+description: 테스트 작성/수정 관련 이슈
 title: "[test] "
 labels: ["test"]
 body:
   - type: textarea
-    id: description
+    id: test_info
     attributes:
-      label: 작업 내용
-      description: 어떤 테스트를 작성/수정하는지 자세히 설명해주세요.
-      placeholder: "테스트 목적 및 범위"
+      label: 테스트 설명
+      description: 어떤 테스트를 추가/수정하나요?
+      placeholder: 테스트 목적 및 내용
     validations:
       required: true
