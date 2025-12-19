@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 import { LEVEL_OPTIONS, LevelId, TARGET_LEVEL_STORAGE_KEY } from "@/constants/opic";
 
@@ -8,32 +9,34 @@ export default function HomeScreen() {
   const [targetLevel, setTargetLevel] = useState<LevelId | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
 
-    const loadLevel = async () => {
-      try {
-        const storedLevel = await AsyncStorage.getItem(TARGET_LEVEL_STORAGE_KEY);
-        const isValidLevel = LEVEL_OPTIONS.some((option) => option.id === storedLevel);
+      const loadLevel = async () => {
+        try {
+          const storedLevel = await AsyncStorage.getItem(TARGET_LEVEL_STORAGE_KEY);
+          const isValidLevel = LEVEL_OPTIONS.some((option) => option.id === storedLevel);
 
-        if (isMounted) {
-          setTargetLevel(isValidLevel ? (storedLevel as LevelId) : null);
+          if (isMounted) {
+            setTargetLevel(isValidLevel ? (storedLevel as LevelId) : null);
+          }
+        } catch (error) {
+          console.error("Failed to load target level", error);
+        } finally {
+          if (isMounted) {
+            setLoading(false);
+          }
         }
-      } catch (error) {
-        console.error("Failed to load target level", error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+      };
 
-    loadLevel();
+      loadLevel();
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      return () => {
+        isMounted = false;
+      };
+    }, [])
+  );
 
   return (
     <View className="flex-1 items-center justify-center bg-white px-6">
@@ -46,6 +49,15 @@ export default function HomeScreen() {
           ? "이 목표를 기준으로 학습을 진행해요."
           : "설정에서 목표 등급을 선택하고 시작하세요."}
       </Text>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => router.push("/onboarding")}
+        className="mt-8 w-full rounded-xl border border-blue-600 bg-white p-4"
+      >
+        <Text className="text-center text-base font-semibold text-blue-700">
+          목표 등급 다시 선택하기
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -63,47 +63,45 @@ export default function OnboardingScreen() {
           </Text>
         </View>
 
-        <View>
+        <View className="-mx-2 flex-row flex-wrap">
           {LEVEL_OPTIONS.map((level) => {
             const isActive = level.id === selectedLevel;
 
             return (
-              <TouchableOpacity
-                key={level.id}
-                activeOpacity={0.9}
-                onPress={() => setSelectedLevel(level.id)}
-                className={`mb-3 rounded-2xl border p-4 ${
-                  isActive
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 bg-white"
-                }`}
-              >
-                <View className="flex-row items-start justify-between">
-                  <View className="flex-1 pr-3">
-                    <Text
-                      className={`text-xl font-semibold ${
-                        isActive ? "text-blue-700" : "text-gray-900"
-                      }`}
-                    >
-                      {level.title}
-                    </Text>
-                    <Text
-                      className={`mt-2 text-sm leading-5 ${
-                        isActive ? "text-blue-700" : "text-gray-600"
-                      }`}
-                    >
-                      {level.description}
-                    </Text>
-                  </View>
+              <View key={level.id} className="w-1/2 px-2">
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => setSelectedLevel(level.id)}
+                  className={`relative mb-4 rounded-2xl border p-4 ${
+                    isActive
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 bg-white"
+                  }`}
+                  style={{ height: 120 }}
+                >
                   <View
-                    className={`mt-1 h-5 w-5 rounded-full border-2 ${
+                    className={`absolute right-3 top-3 h-5 w-5 rounded-full border-2 ${
                       isActive
                         ? "border-blue-600 bg-blue-600"
                         : "border-gray-300"
                     }`}
                   />
-                </View>
-              </TouchableOpacity>
+                  <Text
+                    className={`text-xl font-semibold ${
+                      isActive ? "text-blue-700" : "text-gray-900"
+                    }`}
+                  >
+                    {level.title}
+                  </Text>
+                  <Text
+                    className={`mt-2 text-sm leading-5 ${
+                      isActive ? "text-blue-700" : "text-gray-600"
+                    }`}
+                  >
+                    {level.description}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             );
           })}
         </View>
