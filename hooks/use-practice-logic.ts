@@ -128,10 +128,42 @@ export const usePracticeLogic = () => {
 
   const handleSpeechResult = useCallback(
     (event: ExpoSpeechRecognitionResultEvent) => {
-      const lastResult =
-        event.results[event.results.length - 1]?.transcript ?? "";
+      const bestResult = event.results.reduce<
+        ExpoSpeechRecognitionResultEvent["results"][number] | null
+      >((best, current) => {
+        if (!best) {
+          return current;
+        }
 
-      setTranscript(lastResult.trim());
+        // Prefer available confidence scores; fall back to the last result.
+        const bestConfidence = best.confidence ?? -1;
+        const currentConfidence = current.confidence ?? -1;
+
+        if (bestConfidence === -1 && currentConfidence !== -1) {
+          return current;
+        }
+
+        if (currentConfidence === -1) {
+          return best;
+        }
+
+        return currentConfidence > bestConfidence ? current : best;
+      }, null);
+
+      const normalizedTranscript = bestResult?.transcript.trim() ?? "";
+
+      if (!normalizedTranscript) {
+        return;
+      }
+
+      setTranscript((prev) => {
+        if (event.isFinal) {
+          return normalizedTranscript;
+        }
+
+        // Only surface interim results when nothing exists yet; avoid overwriting a more confident final string.
+        return prev || normalizedTranscript;
+      });
     },
     []
   );
