@@ -132,6 +132,20 @@ export type OpicEvaluationResult = {
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
+const repetitionPenalty = (wordTokens: string[]) => {
+  if (wordTokens.length === 0) return 0;
+
+  const freq = wordTokens.reduce<Record<string, number>>((acc, word) => {
+    acc[word] = (acc[word] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const maxCount = Math.max(...Object.values(freq));
+  const ratio = maxCount / wordTokens.length;
+
+  return clamp01((ratio - 0.18) * 2); // penalize when any single word dominates
+};
+
 const splitSentences = (text: string) => {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) return [];
@@ -161,14 +175,14 @@ const hasSubject = (words: string[]) =>
   words.some((word) => subjectCandidates.includes(word));
 
 const mapTotalScoreToLevel = (score: number): LevelId => {
-  if (score < 0.22) return "NL";
-  if (score < 0.38) return "NM";
-  if (score < 0.52) return "NH";
-  if (score < 0.62) return "IL";
-  if (score < 0.72) return "IM1";
-  if (score < 0.82) return "IM2";
-  if (score < 0.9) return "IM3";
-  if (score < 0.96) return "IH";
+  if (score < 0.24) return "NL";
+  if (score < 0.42) return "NM";
+  if (score < 0.56) return "NH";
+  if (score < 0.66) return "IL";
+  if (score < 0.76) return "IM1";
+  if (score < 0.86) return "IM2";
+  if (score < 0.93) return "IM3";
+  if (score < 0.97) return "IH";
   return "AL";
 };
 
@@ -486,11 +500,12 @@ export const evaluateTranscript = (transcript: string): OpicEvaluationResult => 
   const connectorCount = wordTokens.filter((word) => connectorWords.includes(word)).length;
   const connectorDensity =
     sentenceCount === 0 ? 0 : clamp01(connectorCount / (sentenceCount * 1.5));
+  const repetitionScore = repetitionPenalty(wordTokens);
   const timeMarkerHits = timeMarkers.reduce((count, marker) => {
     const matches = normalized.toLowerCase().match(new RegExp(marker, "g"));
     return count + (matches?.length ?? 0);
   }, 0);
-  const lengthContribution = clamp01(averageSentenceLength / 16);
+  const lengthContribution = clamp01(averageSentenceLength / 18);
   const tenseContribution = clamp01(timeMarkerHits / Math.max(1, sentenceCount));
   const sentenceComplexity = clamp01(
     connectorDensity * 0.55 + lengthContribution * 0.35 + tenseContribution * 0.1
@@ -529,12 +544,14 @@ export const evaluateTranscript = (transcript: string): OpicEvaluationResult => 
   );
 
   const totalScore = clamp01(
-    0.18 * scores.fluencyScore +
+    0.16 * scores.fluencyScore +
       0.22 * scores.sentenceCompletionRate +
-      0.22 * cohesionScore +
+      0.2 * cohesionScore +
       0.18 * scores.lexicalVariety +
-      0.14 * scores.grammarAccuracy +
-      0.06 * volumeScore
+      0.12 * scores.grammarAccuracy +
+      0.06 * volumeScore -
+      0.06 * repetitionScore -
+      (averageSentenceLength > 18 ? 0.03 : 0)
   );
 
   const totalLevel = mapTotalScoreToLevel(totalScore);
@@ -593,13 +610,23 @@ export const evaluateTranscript = (transcript: string): OpicEvaluationResult => 
     `연결어·시제 활용도: ${(connectorDensity * 100).toFixed(0)}% / 시간 표현 ${timeMarkerHits}회`,
     `평균 문장 길이: ${averageSentenceLength.toFixed(1)}어 (${sentenceCount}문장 / ${wordCount}단어)`,
     `군더더기 비율: ${(fillerRate * 100).toFixed(1)}%`,
+    `반복 단어 패널티: ${(repetitionScore * 100).toFixed(0)}%`,
   ];
 
+  let appliedLevel = (finalDecision.level ?? totalLevel) as LevelId;
+  if (["NL", "NM", "NH"].includes(appliedLevel)) {
+    appliedLevel = "NM";
+  }
+
   const notes: string[] = [...finalDecision.notes, ...metricNotes];
-  const reasonSummary = finalDecision.reason ?? baseReason;
+  const reasonSummary =
+    finalDecision.reason ??
+    (["NL", "NM", "NH"].includes(finalDecision.level ?? "")
+      ? "초급 구간은 단일 NM로 묶어 표기합니다."
+      : baseReason);
 
   return {
-    level: (finalDecision.level ?? totalLevel) as LevelId,
+    level: appliedLevel,
     totalScore,
     scores,
     notes,
