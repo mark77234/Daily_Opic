@@ -1,13 +1,13 @@
-name: 🧹 Chore 작업
-about: 유지보수, 빌드/환경 설정 등 정기적인 작업
+name: 🧹 정리/유지보수 (chore)
+description: 코드 정리, 개발환경, 설정 변경 등의 작업
 title: "[chore] "
 labels: ["chore"]
 body:
   - type: textarea
-    id: description
+    id: task
     attributes:
       label: 작업 내용
-      description: 수행할 chore 작업을 상세히 설명해주세요.
-      placeholder: "무엇을, 왜 변경했는지 작성해주세요"
+      description: 어떤 작업을 했나요?
+      placeholder: 작업 내용을 작성해주세요
     validations:
       required: true
