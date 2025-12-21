@@ -246,6 +246,7 @@ export const usePracticeLogic = () => {
 
   return {
     targetLevelLabel,
+    targetLevel,
     estimatedGrade,
     displayedTranscript,
     evaluationResult,

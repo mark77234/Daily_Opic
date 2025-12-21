@@ -6,12 +6,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AnalyzingSection } from "@/components/practice/analyzing-section";
 import { CompletedSection } from "@/components/practice/completed-section";
 import { ListeningSection } from "@/components/practice/listening-section";
-import { FEEDBACK_TIPS, QUESTION, SAMPLE_ANSWER } from "@/constants/practice";
+import {
+  FEEDBACK_BY_LEVEL,
+  QUESTION,
+  SAMPLE_ANSWER_BY_LEVEL,
+} from "@/constants/practice";
 import { usePracticeLogic } from "@/hooks/use-practice-logic";
 
 export default function PracticeScreen() {
   const {
     targetLevelLabel,
+    targetLevel,
     displayedTranscript,
     evaluationResult,
     isListening,
@@ -65,12 +70,17 @@ export default function PracticeScreen() {
 
   const renderContent = () => {
     if (isCompleted) {
+      const feedbackMessage = FEEDBACK_BY_LEVEL[evaluationResult.level];
+      const sampleAnswer =
+        SAMPLE_ANSWER_BY_LEVEL[targetLevel ?? evaluationResult.level];
+
       return (
         <CompletedSection
           evaluation={evaluationResult}
           displayedTranscript={displayedTranscript}
-          feedbackTips={FEEDBACK_TIPS}
-          sampleAnswer={SAMPLE_ANSWER}
+          feedbackMessage={feedbackMessage}
+          sampleAnswer={sampleAnswer}
+          targetLevel={targetLevel}
           onNextQuestion={handleNextQuestion}
         />
       );
