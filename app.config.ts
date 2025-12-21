@@ -33,6 +33,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
    * iOS 18+ 에서 홈화면 스타일에 따라 자동 적용
    */
   ios: {
+    config: {
+      usesNonExemptEncryption: false,
+    },
     supportsTablet: true,
     bundleIdentifier: "com.mark.opicmobile",
     buildNumber: "1",
