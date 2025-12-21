@@ -35,6 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.mark.opicmobile",
+    buildNumber: "1",
     icon: {
       light: ICONS.iosLight,
       dark: ICONS.iosDark,
@@ -54,6 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: "com.mark.opicmobile",
+    versionCode: 1,
   },
 
   web: {
@@ -85,9 +87,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-speech-recognition",
       {
-        microphonePermission: "Allow OpicMobile to use the microphone.",
+        microphonePermission:
+          "영어 말하기 학습을 위해 사용자의 음성을 녹음합니다.",
         speechRecognitionPermission:
-          "Allow OpicMobile to use speech recognition.",
+          "발음 평가 및 말하기 연습을 제공하기 위해 음성 인식을 사용합니다.",
         androidSpeechServicePackages: [
           "com.google.android.googlequicksearchbox",
         ],
