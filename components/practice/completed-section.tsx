@@ -118,6 +118,18 @@ export function CompletedSection({
             {sampleAnswer.ko}
           </Text>
         </View>
+
+        <View className="mt-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-sm">
+          <Text className="text-sm font-extrabold uppercase tracking-wide text-gray-700">
+            참고
+          </Text>
+          <Text className="mt-2 text-sm leading-5 text-gray-800">
+            표시된 등급은 재미 요소일 뿐이며 실제 OPIc 등급과 다를 수 있어요.
+          </Text>
+          <Text className="mt-2 text-sm leading-5 text-gray-800">
+            현재 산정 기준: 단어 수와 평균 문장 길이 중심 + 반복 단어, 군더더기, 너무 짧은 문장은 감점됩니다.
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
