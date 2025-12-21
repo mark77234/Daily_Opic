@@ -12,8 +12,8 @@ import { usePracticeLogic } from "@/hooks/use-practice-logic";
 export default function PracticeScreen() {
   const {
     targetLevelLabel,
-    estimatedGrade,
     displayedTranscript,
+    evaluationResult,
     isListening,
     isAnalyzing,
     isCompleted,
@@ -67,7 +67,7 @@ export default function PracticeScreen() {
     if (isCompleted) {
       return (
         <CompletedSection
-          estimatedGrade={estimatedGrade}
+          evaluation={evaluationResult}
           displayedTranscript={displayedTranscript}
           feedbackTips={FEEDBACK_TIPS}
           sampleAnswer={SAMPLE_ANSWER}

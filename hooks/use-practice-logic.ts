@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   LEVEL_OPTIONS,
@@ -16,6 +16,10 @@ import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
+import {
+  evaluateTranscript,
+  type OpicEvaluationResult,
+} from "@/utils/opic-evaluator";
 
 export type Phase = "idle" | "listening" | "analyzing" | "completed";
 
@@ -228,8 +232,14 @@ export const usePracticeLogic = () => {
     ? "불러오는 중..."
     : (targetLevel ?? "미설정");
 
-  const estimatedGrade = (targetLevel ?? "IM2") as LevelId;
-  const displayedTranscript = transcript || DEFAULT_TRANSCRIPT;
+  const evaluationInput = transcript || DEFAULT_TRANSCRIPT;
+  const evaluationResult: OpicEvaluationResult = useMemo(
+    () => evaluateTranscript(evaluationInput),
+    [evaluationInput]
+  );
+
+  const estimatedGrade = evaluationResult.level;
+  const displayedTranscript = evaluationInput;
   const isListening = phase === "listening";
   const isAnalyzing = phase === "analyzing";
   const isCompleted = phase === "completed";
@@ -238,6 +248,7 @@ export const usePracticeLogic = () => {
     targetLevelLabel,
     estimatedGrade,
     displayedTranscript,
+    evaluationResult,
     transcript,
     permissionGranted,
     errorMessage,

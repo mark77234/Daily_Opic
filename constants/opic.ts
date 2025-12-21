@@ -1,4 +1,13 @@
-export type LevelId = "IL" | "IM1" | "IM2" | "IM3" | "IH" | "AL";
+export type LevelId =
+  | "NL"
+  | "NM"
+  | "NH"
+  | "IL"
+  | "IM1"
+  | "IM2"
+  | "IM3"
+  | "IH"
+  | "AL";
 
 export type LevelOption = {
   id: LevelId;
