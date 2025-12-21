@@ -8,7 +8,7 @@ import {
 
 import type { LevelId } from "@/constants/opic";
 import { db } from "@/firebase";
-import rawQuestions from "@/questions.json";
+// import rawQuestions from "@/questions.json";
 
 type RawQuestion = {
   questionText: string;
@@ -18,6 +18,9 @@ type RawQuestion = {
   level: LevelId;
   createdAt: { timestampValue: string };
 };
+
+// Placeholder to keep build passing when questions.json is excluded from EAS builds.
+const rawQuestions: RawQuestion[] = [];
 
 export type SeedQuestionPayload = Omit<RawQuestion, "createdAt"> & {
   createdAt: Timestamp;
