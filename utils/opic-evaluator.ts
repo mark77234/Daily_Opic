@@ -179,10 +179,10 @@ const mapTotalScoreToLevel = (score: number): LevelId => {
   if (score < 0.42) return "NM";
   if (score < 0.56) return "NH";
   if (score < 0.66) return "IL";
-  if (score < 0.76) return "IM1";
-  if (score < 0.86) return "IM2";
-  if (score < 0.93) return "IM3";
-  if (score < 0.97) return "IH";
+  if (score < 0.8) return "IM1";
+  if (score < 0.85) return "IM2";
+  if (score < 0.9) return "IM3";
+  if (score < 0.95) return "IH";
   return "AL";
 };
 
@@ -207,11 +207,21 @@ type LevelDecision = {
 const determineNoviceLevel = (
   args: Pick<
     OpicEvaluationResult,
-    "averageSentenceLength" | "sentenceCount" | "scores" | "wordCount" | "fillerRate"
+    | "averageSentenceLength"
+    | "sentenceCount"
+    | "scores"
+    | "wordCount"
+    | "fillerRate"
   >
 ): LevelDecision => {
   const notes: string[] = [];
-  const { averageSentenceLength, sentenceCount, scores, wordCount, fillerRate } = args;
+  const {
+    averageSentenceLength,
+    sentenceCount,
+    scores,
+    wordCount,
+    fillerRate,
+  } = args;
 
   const noCompleteSentences = scores.sentenceCompletionRate < 0.25;
   const mostlyIsolated = averageSentenceLength <= 3.5 && sentenceCount <= 2;
@@ -229,7 +239,8 @@ const determineNoviceLevel = (
     };
   }
 
-  const includesShortSentences = averageSentenceLength > 3 && averageSentenceLength <= 6;
+  const includesShortSentences =
+    averageSentenceLength > 3 && averageSentenceLength <= 6;
   const memorizedFeel = scores.lexicalVariety < 0.35;
   const spontaneousLimited = scores.sentenceCompletionRate < 0.45;
   const hesitationDominant = fillerRate > 0.15;
@@ -274,11 +285,12 @@ const determineNoviceLevel = (
 const determineAdvancedLevel = (
   args: Pick<
     OpicEvaluationResult,
-    | "averageSentenceLength"
-    | "sentenceCount"
-    | "scores"
-    | "wordCount"
-  > & { connectorDensity: number; timeMarkerHits: number; continuityScore: number }
+    "averageSentenceLength" | "sentenceCount" | "scores" | "wordCount"
+  > & {
+    connectorDensity: number;
+    timeMarkerHits: number;
+    continuityScore: number;
+  }
 ): LevelDecision => {
   const notes: string[] = [];
   const {
@@ -296,7 +308,8 @@ const determineAdvancedLevel = (
     averageSentenceLength >= 10 &&
     scores.fluencyScore >= 0.55 &&
     continuityScore >= 0.5;
-  const expandedSentences = scores.sentenceComplexity >= 0.6 && averageSentenceLength >= 12;
+  const expandedSentences =
+    scores.sentenceComplexity >= 0.6 && averageSentenceLength >= 12;
   const solidVocabulary = scores.lexicalVariety >= 0.6;
   if (coherentMultiSentence && expandedSentences && solidVocabulary) {
     notes.push(
@@ -334,19 +347,17 @@ const determineAdvancedLevel = (
   return { level: null, notes };
 };
 
-const determineIntermediateLevel = (
-  args: {
-    scores: OpicEvaluationScores;
-    fallback: LevelId;
-    averageSentenceLength: number;
-    sentenceCount: number;
-    wordCount: number;
-    connectorDensity: number;
-    timeMarkerHits: number;
-    fillerRate: number;
-    continuityScore: number;
-  }
-): LevelDecision => {
+const determineIntermediateLevel = (args: {
+  scores: OpicEvaluationScores;
+  fallback: LevelId;
+  averageSentenceLength: number;
+  sentenceCount: number;
+  wordCount: number;
+  connectorDensity: number;
+  timeMarkerHits: number;
+  fillerRate: number;
+  continuityScore: number;
+}): LevelDecision => {
   const {
     scores,
     fallback,
@@ -361,7 +372,8 @@ const determineIntermediateLevel = (
 
   const notes: string[] = [];
   const wordBand = wordCount < 50 ? "low" : wordCount <= 150 ? "mid" : "high";
-  const sentenceBand = sentenceCount < 3 ? "low" : sentenceCount <= 6 ? "mid" : "high";
+  const sentenceBand =
+    sentenceCount < 3 ? "low" : sentenceCount <= 6 ? "mid" : "high";
   const structureBand =
     scores.sentenceComplexity >= 0.58
       ? "complex"
@@ -473,14 +485,16 @@ const determineIntermediateLevel = (
   };
 };
 
-export const evaluateTranscript = (transcript: string): OpicEvaluationResult => {
+export const evaluateTranscript = (
+  transcript: string
+): OpicEvaluationResult => {
   const normalized = transcript.replace(/\s+/g, " ").trim();
   const sentences = splitSentences(normalized);
   const sentenceCount = sentences.length;
-  const wordTokens =
-    normalized.toLowerCase().match(/\b[a-z']+\b/g) ?? [];
+  const wordTokens = normalized.toLowerCase().match(/\b[a-z']+\b/g) ?? [];
   const wordCount = wordTokens.length;
-  const averageSentenceLength = sentenceCount === 0 ? wordCount : wordCount / sentenceCount;
+  const averageSentenceLength =
+    sentenceCount === 0 ? wordCount : wordCount / sentenceCount;
 
   const fillerCount = countFillerWords(normalized);
   const fillerRate = wordCount === 0 ? 0 : fillerCount / wordCount;
@@ -497,7 +511,9 @@ export const evaluateTranscript = (transcript: string): OpicEvaluationResult => 
   const sentenceCompletionRate =
     sentenceCount === 0 ? 0 : completeSentenceCount / sentenceCount;
 
-  const connectorCount = wordTokens.filter((word) => connectorWords.includes(word)).length;
+  const connectorCount = wordTokens.filter((word) =>
+    connectorWords.includes(word)
+  ).length;
   const connectorDensity =
     sentenceCount === 0 ? 0 : clamp01(connectorCount / (sentenceCount * 1.5));
   const repetitionScore = repetitionPenalty(wordTokens);
@@ -506,9 +522,13 @@ export const evaluateTranscript = (transcript: string): OpicEvaluationResult => 
     return count + (matches?.length ?? 0);
   }, 0);
   const lengthContribution = clamp01(averageSentenceLength / 18);
-  const tenseContribution = clamp01(timeMarkerHits / Math.max(1, sentenceCount));
+  const tenseContribution = clamp01(
+    timeMarkerHits / Math.max(1, sentenceCount)
+  );
   const sentenceComplexity = clamp01(
-    connectorDensity * 0.55 + lengthContribution * 0.35 + tenseContribution * 0.1
+    connectorDensity * 0.55 +
+      lengthContribution * 0.35 +
+      tenseContribution * 0.1
   );
 
   const uniqueWordCount = new Set(wordTokens).size;
