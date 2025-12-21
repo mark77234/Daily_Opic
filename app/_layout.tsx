@@ -25,6 +25,14 @@ export default function RootLayout() {
           name="onboarding/index"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="question-filters"
+          options={{ title: "Question Filters" }}
+        />
+        <Stack.Screen
+          name="admin/index"
+          options={{ title: "Admin Seed" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

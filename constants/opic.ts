@@ -1,4 +1,13 @@
-export type LevelId = "IL" | "IM1" | "IM2" | "IM3" | "IH" | "AL";
+export type LevelId =
+  | "NL"
+  | "NM"
+  | "NH"
+  | "IL"
+  | "IM1"
+  | "IM2"
+  | "IM3"
+  | "IH"
+  | "AL";
 
 export type LevelOption = {
   id: LevelId;
@@ -7,6 +16,21 @@ export type LevelOption = {
 };
 
 export const LEVEL_OPTIONS: LevelOption[] = [
+  {
+    id: "NL",
+    title: "NL",
+    description: "단어 위주로 의사 표현을 시작하는 단계",
+  },
+  {
+    id: "NM",
+    title: "NM",
+    description: "짧은 문장으로 기본 응답이 가능한 단계",
+  },
+  {
+    id: "NH",
+    title: "NH",
+    description: "간단한 설명과 묘사가 가능한 단계",
+  },
   {
     id: "IL",
     title: "IL",
