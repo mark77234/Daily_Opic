@@ -50,7 +50,9 @@ export default function ProgressScreen() {
         {loading ? (
           <View className="mt-6 items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 p-6">
             <ActivityIndicator color="#2563eb" />
-            <Text className="mt-2 text-sm text-gray-600">기록을 불러오는 중...</Text>
+            <Text className="mt-2 text-sm text-gray-600">
+              기록을 불러오는 중...
+            </Text>
           </View>
         ) : (
           <>
@@ -115,7 +117,7 @@ export default function ProgressScreen() {
                   {history.slice(0, 8).map((entry) => (
                     <View
                       key={entry.id}
-                      className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+                      className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm mb-4"
                     >
                       <View className="flex-row items-center justify-between">
                         <Text className="text-xs font-semibold uppercase tracking-wide text-gray-600">
