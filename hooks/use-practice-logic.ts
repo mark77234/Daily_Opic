@@ -35,6 +35,7 @@ export const usePracticeLogic = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const manualStopRef = useRef(false);
 
   const analysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { filters, loadingFilters } = useQuestionFilters();
@@ -166,12 +167,34 @@ export const usePracticeLogic = () => {
       : null;
 
   const handleSpeechStart = useCallback(() => {
+    manualStopRef.current = false;
     setPhase("listening");
+    setErrorMessage(null);
   }, []);
 
   const handleSpeechEnd = useCallback(() => {
-    setPhase((prev) => (prev === "listening" ? "idle" : prev));
-  }, []);
+    setPhase((prev) => {
+      if (prev !== "listening") {
+        return prev;
+      }
+
+      if (manualStopRef.current) {
+        manualStopRef.current = false;
+        return prev;
+      }
+
+      const trimmed = transcript.trim();
+      const interruptionReason = trimmed.length
+        ? "말씀이 잠시 끊겨 인식이 중단됐어요."
+        : "음성이 감지되지 않아 인식이 자동으로 멈췄어요.";
+
+      setErrorMessage(
+        `${interruptionReason} 마이크를 휴대폰 가까이에 대고 끊기지 않게 이어서 말해 주세요.`
+      );
+
+      return "idle";
+    });
+  }, [transcript]);
 
   const handleSpeechResult = useCallback(
     (event: ExpoSpeechRecognitionResultEvent) => {
@@ -218,7 +241,9 @@ export const usePracticeLogic = () => {
   const handleSpeechError = useCallback(
     (event: ExpoSpeechRecognitionErrorEvent) => {
       setPhase("idle");
-      setErrorMessage(event.message);
+      setErrorMessage(
+        `${event.message}. 마이크를 휴대폰 가까이에 두고 다시 이어서 말해 주세요.`
+      );
     },
     []
   );
@@ -245,6 +270,7 @@ export const usePracticeLogic = () => {
     }
 
     if (phase === "listening") {
+      manualStopRef.current = true;
       ExpoSpeechRecognitionModule.stop();
       startAnalysisCountdown();
       return;
@@ -252,6 +278,7 @@ export const usePracticeLogic = () => {
 
     setErrorMessage(null);
     setTranscript("");
+    manualStopRef.current = false;
 
     const hasPermission = await ensureSpeechPermission();
 

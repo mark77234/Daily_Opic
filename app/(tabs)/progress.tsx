@@ -1,6 +1,12 @@
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
@@ -35,6 +41,9 @@ export default function ProgressScreen() {
   );
 
   const lastEntry = history[0];
+  const handleOpenDetail = useCallback((entryId: string) => {
+    router.push({ pathname: "/history/[id]", params: { id: entryId } });
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -43,16 +52,12 @@ export default function ProgressScreen() {
         contentContainerClassName="flex-grow px-6 pb-10 pt-6"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-2xl font-semibold text-gray-900">
-          Your Progress
-        </Text>
+        <Text className="text-2xl font-semibold text-gray-900">통계</Text>
 
         {loading ? (
-          <View className="mt-6 items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 p-6">
+          <View className="mt-6 min-h-[140px] items-center justify-center gap-2 rounded-2xl border border-gray-100 bg-gray-50 p-6">
             <ActivityIndicator color="#2563eb" />
-            <Text className="mt-2 text-sm text-gray-600">
-              기록을 불러오는 중...
-            </Text>
+            <Text className="text-sm text-gray-600">기록을 불러오는 중...</Text>
           </View>
         ) : (
           <>
@@ -101,7 +106,7 @@ export default function ProgressScreen() {
 
             <View className="mt-10">
               <Text className="text-xl font-semibold text-gray-900">
-                Recent Attempts
+                최근 기록
               </Text>
               {history.length === 0 ? (
                 <View className="mt-4 rounded-2xl border-2 border-dashed border-gray-200 bg-white p-5">
@@ -115,9 +120,11 @@ export default function ProgressScreen() {
               ) : (
                 <View className="mt-4 space-y-3">
                   {history.slice(0, 8).map((entry) => (
-                    <View
+                    <TouchableOpacity
                       key={entry.id}
-                      className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm mb-4"
+                      activeOpacity={0.9}
+                      onPress={() => handleOpenDetail(entry.id)}
+                      className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
                     >
                       <View className="flex-row items-center justify-between">
                         <Text className="text-xs font-semibold uppercase tracking-wide text-gray-600">
@@ -152,7 +159,7 @@ export default function ProgressScreen() {
                           ))}
                         </View>
                       ) : null}
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
               )}

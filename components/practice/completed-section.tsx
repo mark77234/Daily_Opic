@@ -7,7 +7,7 @@ type CompletedSectionProps = {
   evaluation: OpicEvaluationResult;
   displayedTranscript: string;
   feedbackMessage: string;
-  sampleAnswer: { en: string; ko: string };
+  sampleAnswer: string;
   targetLevel?: LevelId | null;
   category?: string | null;
   tags?: string[];
@@ -135,13 +135,7 @@ export function CompletedSection({
             Firestore exampleAnswer 기반
           </Text>
           <Text className="mt-3 text-base leading-6 text-emerald-900">
-            {sampleAnswer.en}
-          </Text>
-          <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            한국어 번역
-          </Text>
-          <Text className="mt-1 text-base leading-6 text-emerald-900">
-            {sampleAnswer.ko}
+            {sampleAnswer}
           </Text>
         </View>
 
