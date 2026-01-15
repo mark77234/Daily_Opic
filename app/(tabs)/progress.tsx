@@ -118,7 +118,7 @@ export default function ProgressScreen() {
                   </Text>
                 </View>
               ) : (
-                <View className="mt-4 space-y-3">
+                <View className="mt-4 gap-3">
                   {history.slice(0, 8).map((entry) => (
                     <TouchableOpacity
                       key={entry.id}
