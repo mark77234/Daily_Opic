@@ -16,7 +16,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   name: "Daily Opic",
   slug: "opic_mobile",
-  version: "1.0.1",
+  version: "1.0.2",
 
   extra: {
     eas: {

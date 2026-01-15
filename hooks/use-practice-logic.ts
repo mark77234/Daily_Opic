@@ -36,6 +36,8 @@ export const usePracticeLogic = () => {
   const [phase, setPhase] = useState<Phase>("idle");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const manualStopRef = useRef(false);
+  const attemptIdRef = useRef(0);
+  const savedAttemptIdRef = useRef<number | null>(null);
 
   const analysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { filters, loadingFilters } = useQuestionFilters();
@@ -168,6 +170,8 @@ export const usePracticeLogic = () => {
 
   const handleSpeechStart = useCallback(() => {
     manualStopRef.current = false;
+    attemptIdRef.current += 1;
+    savedAttemptIdRef.current = null;
     setPhase("listening");
     setErrorMessage(null);
   }, []);
@@ -309,6 +313,11 @@ export const usePracticeLogic = () => {
 
   const recordHistory = useCallback(async () => {
     if (!currentQuestion) return;
+    const attemptId = attemptIdRef.current;
+
+    if (savedAttemptIdRef.current === attemptId) {
+      return;
+    }
 
     const entry = {
       id: `${Date.now()}`,
@@ -324,12 +333,31 @@ export const usePracticeLogic = () => {
     };
 
     await addPracticeHistoryEntry(entry);
+    savedAttemptIdRef.current = attemptId;
   }, [
     currentQuestion,
     evaluationInput,
     evaluationResult.level,
     targetLevel,
   ]);
+
+  useEffect(() => {
+    if (phase !== "completed") {
+      return;
+    }
+
+    if (!currentQuestion) {
+      return;
+    }
+
+    if (savedAttemptIdRef.current === attemptIdRef.current) {
+      return;
+    }
+
+    recordHistory().catch((error) =>
+      console.error("Failed to auto-save practice history", error)
+    );
+  }, [currentQuestion, phase, recordHistory]);
 
   const handleNextQuestion = useCallback(
     async (options?: { skipSave?: boolean }) => {

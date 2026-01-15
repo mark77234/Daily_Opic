@@ -51,3 +51,25 @@ export const addPracticeHistoryEntry = async (
     console.error("Failed to save practice history", error);
   }
 };
+
+export const removePracticeHistoryEntry = async (entryId: string) => {
+  const existing = await loadPracticeHistory();
+  const next = existing.filter((entry) => entry.id !== entryId);
+
+  try {
+    await AsyncStorage.setItem(PRACTICE_HISTORY_KEY, JSON.stringify(next));
+  } catch (error) {
+    console.error("Failed to remove practice history entry", error);
+    return existing;
+  }
+
+  return next;
+};
+
+export const clearPracticeHistory = async () => {
+  try {
+    await AsyncStorage.removeItem(PRACTICE_HISTORY_KEY);
+  } catch (error) {
+    console.error("Failed to clear practice history", error);
+  }
+};

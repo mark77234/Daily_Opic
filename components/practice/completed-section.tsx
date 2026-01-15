@@ -24,7 +24,7 @@ export function CompletedSection({
   tags,
   onNextQuestion,
 }: CompletedSectionProps) {
-  const { level, wordCount, sentenceCount, reasonSummary } = evaluation;
+  const { level, wordCount, sentenceCount } = evaluation;
 
   return (
     <View className="mt-6 flex-1">
@@ -74,9 +74,6 @@ export function CompletedSection({
             >
               <Text className="text-base font-extrabold text-amber-950">
                 다음 질문으로 넘어가기
-              </Text>
-              <Text className="text-[11px] font-semibold text-amber-900">
-                이 결과를 저장하고 연습을 이어가요
               </Text>
             </TouchableOpacity>
           </View>
