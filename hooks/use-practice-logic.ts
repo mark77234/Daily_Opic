@@ -35,6 +35,9 @@ export const usePracticeLogic = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const manualStopRef = useRef(false);
+  const attemptIdRef = useRef(0);
+  const savedAttemptIdRef = useRef<number | null>(null);
 
   const analysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { filters, loadingFilters } = useQuestionFilters();
@@ -166,12 +169,36 @@ export const usePracticeLogic = () => {
       : null;
 
   const handleSpeechStart = useCallback(() => {
+    manualStopRef.current = false;
+    attemptIdRef.current += 1;
+    savedAttemptIdRef.current = null;
     setPhase("listening");
+    setErrorMessage(null);
   }, []);
 
   const handleSpeechEnd = useCallback(() => {
-    setPhase((prev) => (prev === "listening" ? "idle" : prev));
-  }, []);
+    setPhase((prev) => {
+      if (prev !== "listening") {
+        return prev;
+      }
+
+      if (manualStopRef.current) {
+        manualStopRef.current = false;
+        return prev;
+      }
+
+      const trimmed = transcript.trim();
+      const interruptionReason = trimmed.length
+        ? "말씀이 잠시 끊겨 인식이 중단됐어요."
+        : "음성이 감지되지 않아 인식이 자동으로 멈췄어요.";
+
+      setErrorMessage(
+        `${interruptionReason} 마이크를 휴대폰 가까이에 대고 끊기지 않게 이어서 말해 주세요.`
+      );
+
+      return "idle";
+    });
+  }, [transcript]);
 
   const handleSpeechResult = useCallback(
     (event: ExpoSpeechRecognitionResultEvent) => {
@@ -218,7 +245,9 @@ export const usePracticeLogic = () => {
   const handleSpeechError = useCallback(
     (event: ExpoSpeechRecognitionErrorEvent) => {
       setPhase("idle");
-      setErrorMessage(event.message);
+      setErrorMessage(
+        `${event.message}. 마이크를 휴대폰 가까이에 두고 다시 이어서 말해 주세요.`
+      );
     },
     []
   );
@@ -245,6 +274,7 @@ export const usePracticeLogic = () => {
     }
 
     if (phase === "listening") {
+      manualStopRef.current = true;
       ExpoSpeechRecognitionModule.stop();
       startAnalysisCountdown();
       return;
@@ -252,6 +282,7 @@ export const usePracticeLogic = () => {
 
     setErrorMessage(null);
     setTranscript("");
+    manualStopRef.current = false;
 
     const hasPermission = await ensureSpeechPermission();
 
@@ -282,6 +313,11 @@ export const usePracticeLogic = () => {
 
   const recordHistory = useCallback(async () => {
     if (!currentQuestion) return;
+    const attemptId = attemptIdRef.current;
+
+    if (savedAttemptIdRef.current === attemptId) {
+      return;
+    }
 
     const entry = {
       id: `${Date.now()}`,
@@ -297,12 +333,31 @@ export const usePracticeLogic = () => {
     };
 
     await addPracticeHistoryEntry(entry);
+    savedAttemptIdRef.current = attemptId;
   }, [
     currentQuestion,
     evaluationInput,
     evaluationResult.level,
     targetLevel,
   ]);
+
+  useEffect(() => {
+    if (phase !== "completed") {
+      return;
+    }
+
+    if (!currentQuestion) {
+      return;
+    }
+
+    if (savedAttemptIdRef.current === attemptIdRef.current) {
+      return;
+    }
+
+    recordHistory().catch((error) =>
+      console.error("Failed to auto-save practice history", error)
+    );
+  }, [currentQuestion, phase, recordHistory]);
 
   const handleNextQuestion = useCallback(
     async (options?: { skipSave?: boolean }) => {

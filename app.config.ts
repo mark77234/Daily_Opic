@@ -16,7 +16,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   name: "Daily Opic",
   slug: "opic_mobile",
-  version: "1.0.0",
+  version: "1.0.2",
 
   extra: {
     eas: {
@@ -38,7 +38,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     supportsTablet: true,
     bundleIdentifier: "com.mark.opicmobile",
-    buildNumber: "1",
+    buildNumber: "2",
     icon: {
       light: ICONS.iosLight,
       dark: ICONS.iosDark,
@@ -62,7 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: "com.mark.opicmobile",
-    versionCode: 1,
+    versionCode: 2,
   },
 
   web: {

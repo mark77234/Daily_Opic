@@ -26,13 +26,14 @@ export default function RootLayout() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="history/[id]"
+          options={{ title: "연습 기록", headerBackTitle: "Back" }}
+        />
+        <Stack.Screen
           name="question-filters"
           options={{ title: "Question Filters" }}
         />
-        <Stack.Screen
-          name="admin/index"
-          options={{ title: "Admin Seed" }}
-        />
+        <Stack.Screen name="admin/index" options={{ title: "Admin Seed" }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

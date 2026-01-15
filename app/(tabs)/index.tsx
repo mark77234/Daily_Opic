@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AnalyzingSection } from "@/components/practice/analyzing-section";
 import { CompletedSection } from "@/components/practice/completed-section";
 import { ListeningSection } from "@/components/practice/listening-section";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   FEEDBACK_BY_LEVEL,
   SAMPLE_ANSWER_BY_LEVEL,
@@ -32,6 +33,7 @@ export default function PracticeScreen() {
     isListening,
     isAnalyzing,
     isCompleted,
+    errorMessage,
     handleToggleRecognition,
     handleSkipQuestion,
     handleNextQuestion,
@@ -100,10 +102,8 @@ export default function PracticeScreen() {
       const feedbackMessage = FEEDBACK_BY_LEVEL[evaluationResult.level];
       const levelForSample = targetLevel ?? evaluationResult.level;
       const fallbackSample = SAMPLE_ANSWER_BY_LEVEL[levelForSample];
-      const sampleAnswer = {
-        en: currentQuestion?.exampleAnswer ?? fallbackSample.en,
-        ko: fallbackSample.ko,
-      };
+      const sampleAnswer =
+        currentQuestion?.exampleAnswer?.trim() || fallbackSample.en;
 
       return (
         <CompletedSection
@@ -151,10 +151,10 @@ export default function PracticeScreen() {
         <View className="flex-row items-start justify-between">
           <View>
             <Text className="text-2xl font-semibold text-gray-900">
-              Practice Mode
+              연습 하기
             </Text>
             <View className="mt-1 flex-row items-center gap-2">
-              <Text className="text-base text-gray-600">Targeting:</Text>
+              <Text className="text-base text-gray-600">목표등급:</Text>
               <Text className="text-base font-semibold text-primary-600">
                 {targetLevelLabel}
               </Text>
@@ -184,7 +184,7 @@ export default function PracticeScreen() {
             className="rounded-full border border-gray-300 bg-white px-4 py-2 "
           >
             <Text className="text-base font-semibold text-gray-700">
-              Skip Question
+              다른 질문
             </Text>
           </TouchableOpacity>
         </View>
@@ -201,9 +201,11 @@ export default function PracticeScreen() {
 
         <View className="mt-6 rounded-2xl border border-gray-300 bg-white p-5 ">
           {questionsLoading ? (
-            <View className="items-center justify-center py-2">
+            <View className="items-center justify-center gap-2 py-8">
               <ActivityIndicator color="#2563eb" />
-              <Text className="mt-2 text-sm text-gray-600">문제를 불러오는 중입니다...</Text>
+              <Text className="text-sm text-gray-600">
+                문제를 불러오는 중입니다...
+              </Text>
             </View>
           ) : (
             <>
@@ -227,11 +229,35 @@ export default function PracticeScreen() {
                 </View>
               ) : null}
               {questionError && (
-                <Text className="mt-3 text-sm text-red-600">{questionError}</Text>
+                <Text className="mt-3 text-sm text-red-600">
+                  {questionError}
+                </Text>
               )}
             </>
           )}
         </View>
+
+        {errorMessage && (
+          <View className="mt-3 flex-row items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <IconSymbol
+              name="exclamationmark.triangle.fill"
+              size={18}
+              color="#b45309"
+              style={{ marginTop: 2 }}
+            />
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-amber-900">
+                음성 인식이 잠시 멈췄어요
+              </Text>
+              <Text className="mt-1 text-xs leading-5 text-amber-800">
+                {errorMessage}
+              </Text>
+              <Text className="mt-1 text-[11px] font-semibold text-amber-900">
+                마이크를 휴대폰 가까이에 대고 이어서 쭉 말씀해 주세요.
+              </Text>
+            </View>
+          </View>
+        )}
 
         {renderContent()}
       </View>

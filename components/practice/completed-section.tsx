@@ -7,7 +7,7 @@ type CompletedSectionProps = {
   evaluation: OpicEvaluationResult;
   displayedTranscript: string;
   feedbackMessage: string;
-  sampleAnswer: { en: string; ko: string };
+  sampleAnswer: string;
   targetLevel?: LevelId | null;
   category?: string | null;
   tags?: string[];
@@ -24,7 +24,7 @@ export function CompletedSection({
   tags,
   onNextQuestion,
 }: CompletedSectionProps) {
-  const { level, wordCount, sentenceCount, reasonSummary } = evaluation;
+  const { level, wordCount, sentenceCount } = evaluation;
 
   return (
     <View className="mt-6 flex-1">
@@ -74,9 +74,6 @@ export function CompletedSection({
             >
               <Text className="text-base font-extrabold text-amber-950">
                 다음 질문으로 넘어가기
-              </Text>
-              <Text className="text-[11px] font-semibold text-amber-900">
-                이 결과를 저장하고 연습을 이어가요
               </Text>
             </TouchableOpacity>
           </View>
@@ -135,13 +132,7 @@ export function CompletedSection({
             Firestore exampleAnswer 기반
           </Text>
           <Text className="mt-3 text-base leading-6 text-emerald-900">
-            {sampleAnswer.en}
-          </Text>
-          <Text className="mt-4 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            한국어 번역
-          </Text>
-          <Text className="mt-1 text-base leading-6 text-emerald-900">
-            {sampleAnswer.ko}
+            {sampleAnswer}
           </Text>
         </View>
 
